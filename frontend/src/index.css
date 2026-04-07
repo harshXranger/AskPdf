@@ -1,0 +1,592 @@
+
+/* Base (Dark Slate / Indigo SaaS theme) */
+:root{
+  --bg-0:#020617;
+  --bg-1:#020617;
+  --bg-accent:#0f172a;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --card:rgba(15,23,42,0.72);
+  --border:rgba(148,163,184,0.35);
+  --shadow:0 18px 40px rgba(15,23,42,0.9);
+  --shadow-lg:0 30px 80px rgba(15,23,42,0.95);
+  --primary:#6366f1;
+  --primary-600:#4f46e5;
+  --danger:#f97373;
+  --radius:20px;
+  --aitext:black;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html, body{
+  height:100%;
+}
+
+body{
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(56,189,248,0.16), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(129,140,248,0.22), transparent 60%),
+    linear-gradient(135deg,var(--bg-0),var(--bg-1));
+}
+
+button, input{
+  font:inherit;
+}
+
+button:focus-visible, input:focus-visible{
+  outline:3px solid rgba(79,70,229,0.35);
+  outline-offset:2px;
+}
+
+/* Full Screen Center Layout */
+.container{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  text-align:center;
+  gap:clamp(1.2rem, 3vw, 1.8rem);
+  padding:clamp(1.5rem, 3vw, 2.25rem) clamp(1rem, 3vw, 2rem) 88px; /* extra bottom space for floating button */
+}
+
+/* Title */
+.title{
+  font-size:clamp(2.1rem, 3.5vw, 2.7rem);
+  font-weight:700;
+  letter-spacing:-0.04em;
+  background:linear-gradient(120deg,#38bdf8,var(--primary));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.subtitle{
+  font-size:clamp(0.9rem, 1.6vw, 1rem);
+  color:var(--muted);
+  max-width:560px;
+  line-height:1.5;
+}
+
+/* Hero Upload Box (Glassmorphism) */
+.uploadBox{
+  background:var(--card);
+  padding:clamp(1.4rem, 3vw, 1.8rem);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:0.8rem;
+  align-items:stretch;
+  width:100%;
+  max-width:560px;
+  transition:box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  border:1px solid rgba(148,163,184,0.55);
+  backdrop-filter:blur(12px) saturate(1.4);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4);
+}
+
+.uploadBox.dragOver{
+  border-color:rgba(129,140,248,0.9);
+  box-shadow:0px 22px 55px rgba(15,23,42,0.9);
+  transform:translateY(-2px) scale(1.01);
+  background:rgba(15,23,42,0.88);
+}
+
+.uploadLabel{
+  font-weight:600;
+  font-size:clamp(0.95rem, 1.4vw, 1.05rem);
+  color:#e5e7eb;
+  text-align:left;
+}
+
+.fileInfo{
+  font-size:clamp(0.8rem, 1.2vw, 0.9rem);
+  color:rgb(255, 255, 255);
+  font-weight:bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align:left;
+}
+
+.errorText{
+  font-size:clamp(0.8rem, 1.1vw, 0.9rem);
+  color:var(--danger);
+  text-align:left;
+}
+
+/* File Input */
+.uploadBox input{
+  padding:0.7rem 0.8rem;
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  width:100%;
+  background-color:rgba(15,23,42,0.7);
+  color:var(--text);
+}
+
+/* Upload Button */
+.uploadBox button{
+  padding:0.8rem 1.3rem;
+  background:var(--primary);
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-size:clamp(0.9rem, 1.4vw, 1rem);
+  cursor:pointer;
+  transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+}
+
+.uploadBox button:hover{
+  background:var(--primary-600);
+  transform:translateY(-1px);
+  box-shadow:0px 8px 18px rgba(79,70,229,0.35);
+}
+
+.uploadBox button:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+}
+
+/* Upload result card */
+.resultCard{
+  width:100%;
+  max-width:960px;
+  background:var(--card);
+  border:1px solid rgba(15,23,42,0.08);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px 18px;
+  text-align:left;
+}
+
+.resultHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+.resultTitle{
+  font-weight:800;
+  font-size:clamp(1rem, 1.6vw, 1.2rem);
+  letter-spacing:-0.01em;
+}
+
+.resultActions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.resultButton{
+  padding:10px 12px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  background:var(--primary);
+  color:#fff;
+  font-weight:700;
+  font-size:13px;
+  transition:transform 0.15s ease, background 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.resultButton:hover{
+  background:var(--primary-600);
+  transform:translateY(-1px);
+  box-shadow:0px 8px 18px rgba(79,70,229,0.28);
+}
+
+.resultButton:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+
+.resultButton.secondary{
+  background:rgba(15,23,42,0.08);
+  color:var(--text);
+}
+
+.resultButton.secondary:hover{
+  background:rgba(15,23,42,0.12);
+  box-shadow:none;
+}
+
+.resultGrid{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap:8px 12px;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.resultLabel{
+  font-size:clamp(0.8rem, 1.2vw, 0.9rem);
+  color:var(--muted);
+}
+
+.resultValue{
+  font-size:clamp(0.9rem, 1.3vw, 1rem);
+  color:var(--text);
+  font-weight:600;
+  word-break:break-word;
+}
+
+.resultSectionTitle{
+  font-size:clamp(0.8rem, 1.2vw, 0.9rem);
+  font-weight:700;
+  color:#334155;
+  margin:10px 0 8px;
+}
+
+.resultPreview{
+  white-space:pre-wrap;
+  word-break:break-word;
+  font-size:13px;
+  line-height:1.55;
+  color:#0f172a;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 12px;
+  max-height:220px;
+  overflow:auto;
+}
+
+/* AskQuestion */
+.askCard{
+  width:100%;
+  max-width:960px;
+  background:var(--card);
+  border:1px solid rgba(15,23,42,0.08);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px 18px;
+  text-align:left;
+}
+
+.askTitle{
+  font-weight:800;
+  font-size:clamp(0.95rem, 1.5vw, 1.1rem);
+  margin-bottom:12px;
+}
+
+.askRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.askInput{
+  flex:1 1 320px;
+  padding:12px 12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#f8fafc;
+}
+
+.askButton{
+  padding:12px 16px;
+  border:none;
+  border-radius:12px;
+  background:var(--primary);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  transition:background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.askButton:hover{
+  background:var(--primary-600);
+  transform:translateY(-1px);
+}
+
+.askButton:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.answerCard{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 12px;
+}
+
+.answerTitle{
+  font-size:13px;
+  font-weight:800;
+  color:#334155;
+  margin-bottom:6px;
+}
+
+.answerText{
+  font-size:clamp(0.9rem, 1.4vw, 1rem);
+  line-height:1.55;
+  color:var(--aitext);
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* PDF Viewer Shell */
+.viewerShell{
+  width:100%;
+  max-width:1100px;
+  margin-inline:auto;
+  display:flex;
+  flex-direction:column;
+  gap:0.75rem;
+  animation:fadeUp 0.45s ease-out both;
+}
+
+.viewerTopBar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:0.75rem;
+}
+
+.viewerBackButton{
+  padding:0.6rem 0.9rem;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,0.45);
+  background:rgba(15,23,42,0.9);
+  color:var(--text);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+  font-size:clamp(0.8rem, 1.2vw, 0.9rem);
+  transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+
+.viewerBackButton span{
+  font-size:1rem;
+}
+
+.viewerBackButton:hover{
+  background:rgba(15,23,42,1);
+  transform:translateY(-1px);
+  box-shadow:0 12px 30px rgba(15,23,42,0.9);
+}
+
+.viewerBackButton:active{
+  transform:translateY(0);
+  box-shadow:none;
+}
+
+.viewerLabel{
+  font-size:clamp(0.8rem, 1.2vw, 0.95rem);
+  color:var(--muted);
+}
+
+.pdfViewer{
+  width:90%;
+  max-width:1200px;
+  height:85vh;
+  border-radius:24px;
+  box-shadow:var(--shadow-lg);
+  border:1px solid rgba(15,23,42,0.7);
+  transition:transform 0.25s ease, box-shadow 0.25s ease;
+}   
+.pdfContainer{
+  width:100%;
+  max-width:1200px;
+  background:rgba(15,23,42,0.95);
+  border:1px solid rgba(15,23,42,0.9);
+  padding:18px;
+  border-radius:24px;
+  box-shadow:var(--shadow-lg);
+}
+
+.controls{
+  margin:4px 0 12px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  padding:10px 10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.8);
+  border:1px solid rgba(15,23,42,0.06);
+}
+
+.controls button{
+  padding:9px 14px;
+  border:none;
+  background:var(--primary);
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+  transition:transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.controls button:hover{
+  background:var(--primary-600);
+  transform:translateY(-1px);
+}
+
+.controls button:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.controlsGroup{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.pageInput{
+  width:72px;
+  padding:9px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  font-size:14px;
+}
+
+/* Scrollable multi-page PDF viewer */
+.pdfScroll{
+  overflow:auto;
+  background:radial-gradient(circle at top, rgba(0, 106, 255, 0.25), rgba(15,23,42,1) 55%);
+  padding:14px;
+  scrollbar-gutter:stable;
+}
+.zoompercent{
+  color:black;
+  font-weight:bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.pdfPage{
+  display:flex;
+  justify-content:center;
+  padding:12px 0;
+}
+
+.pdfCanvas{
+  display:block;
+  max-width:100%;
+  height:auto;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0px 10px 28px rgba(15,23,42,0.18);
+}
+
+/* Floating upload (bottom-right) */
+.floatingUpload{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:flex-end;
+  z-index:20;
+}
+
+.floatingUploadInput{
+  display:none;
+}
+
+.floatingUploadButton{
+  padding:12px 16px;
+  border:none;
+  border-radius:999px;
+  background:rgba(17,24,39,0.92);
+  color:#fff;
+  cursor:pointer;
+  box-shadow:0px 14px 34px rgba(0,0,0,0.28);
+  transition:transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.floatingUploadButton:hover{
+  transform:translateY(-1px);
+  box-shadow:0px 14px 30px rgba(0,0,0,0.28);
+}
+
+.floatingUploadButton:disabled{
+  opacity:0.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.floatingUploadError{
+  max-width:min(320px, 90vw);
+  padding:10px 12px;
+  border-radius:10px;
+  background:#fee2e2;
+  color:#991b1b;
+  font-size:13px;
+  text-align:left;
+  box-shadow:0px 10px 24px rgba(0,0,0,0.15);
+}
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(10px) scale(0.99);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+/* Responsive tweaks */
+@media (max-width:768px){
+  .title{
+    font-size:clamp(1.6rem, 6vw, 2rem);
+  }
+
+  .subtitle{
+    font-size:clamp(0.85rem, 3.5vw, 0.95rem);
+  }
+
+  .uploadBox{
+    padding:1.1rem 1rem;
+    max-width:100%;
+  }
+
+  .pdfViewer{
+    height:60vh;
+  }
+
+  .container{
+    padding:1.5rem 1rem 88px;
+  }
+}
+
+@media (max-width:480px){
+  .title{
+    font-size:clamp(1.4rem, 7vw, 1.7rem);
+  }
+
+  .pdfViewer{
+    height:55vh;
+  }
+}

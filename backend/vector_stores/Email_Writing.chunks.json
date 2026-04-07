@@ -1,0 +1,13 @@
+{
+  "source_pdf": "Email_Writing.pdf",
+  "pages": 1,
+  "chunk_size": 700,
+  "chunks": [
+    "Topic: Email inviƟng team members for a meeƟng From: harshal@company.com To: teamMembers@company.com Subject: Upcoming Team MeeƟng – Project Progress & Task Planning Hi Team, I hope you're all doing well. I'd like to schedule a team meeƟng to discuss our ongoing project progress and plan the upcoming tasks. Please reply to this email with your conﬁrmaƟon or let me know if the proposed date and Ɵme are not suitable, so we can make the necessary arrangements.",
+    "Agenda: • Review of current project status • Discussion of blockers and challenges • Planning and assignment of upcoming tasks • Discussion and Q&A Your input and presence are important for this meeƟng, so please make sure to conﬁrm your availability at your earliest convenience. As a reference, the proposed slot is 10 March 2026 at 11:00 AM (MeeƟng Room 2) — but we are open to adjusƟng based on the team's availability. Looking forward to our discussion. Best regards, Harshal Chopda Team Coordinator"
+  ],
+  "chunk_pages": [
+    1,
+    1
+  ]
+}
