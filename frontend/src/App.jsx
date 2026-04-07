@@ -54,7 +54,7 @@ function App() {
               {!!uploadResult && (
                 <div className="panelEnter panelEnter--2">
                   <ChatUI
-                    scrollToPage={(page) => viewerRef.current?.scrollToPage(page)}
+                    scrollToPage={(page) => viewerRef.current?.scrollToPage?.(page)}
                   />
                 </div>
               )}

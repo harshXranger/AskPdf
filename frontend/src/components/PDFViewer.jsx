@@ -1,6 +1,5 @@
 import React, {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -14,34 +13,24 @@ GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const PDFViewer = forwardRef(function PDFViewer({ fileUrl }, ref) {
-  const scrollRootRef = useRef(null);
+
+  const viewerRef = useRef(null);
   const canvasRefs = useRef([]);
 
   const [pdfDoc, setPdfDoc] = useState(null);
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(1
+  );
   const [canvasesReadyTick, setCanvasesReadyTick] = useState(0);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const scrollToPage = useCallback((pageNumber) => {
-    const root = scrollRootRef.current;
-    if (!root || pageNumber == null) return;
-    const n = Number(pageNumber);
-    if (!Number.isFinite(n) || n < 1) return;
-
-    const el = root.querySelector(`[data-page="${Math.floor(n)}"]`);
-    if (el) {
-      const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-    }
-  }, []);
-
-  useImperativeHandle(ref, () => ({ scrollToPage }), [scrollToPage]);
+  /* ---------------- LOAD PDF ---------------- */
 
   useEffect(() => {
+
     if (!fileUrl) return;
 
     let mounted = true;
@@ -52,61 +41,87 @@ const PDFViewer = forwardRef(function PDFViewer({ fileUrl }, ref) {
 
     loadingTask.promise
       .then((pdf) => {
+
         if (!mounted) return;
+
         setPdfDoc(pdf);
         setNumPages(pdf.numPages);
         setCurrentPage(1);
         canvasRefs.current = [];
         setCanvasesReadyTick((t) => t + 1);
+
       })
       .catch((err) => {
+
         console.error(err);
         if (!mounted) return;
         setError("Failed to load PDF");
+
       })
       .finally(() => {
+
         if (!mounted) return;
         setLoading(false);
+
       });
 
     return () => {
       mounted = false;
       loadingTask.destroy();
     };
+
   }, [fileUrl]);
 
+  /* ---------------- RENDER PAGES ---------------- */
+
   useEffect(() => {
+
     if (!pdfDoc) return;
 
     const renderPages = async () => {
+
       for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+
         const canvas = canvasRefs.current[pageNum - 1];
         if (!canvas) continue;
 
         try {
+
           const page = await pdfDoc.getPage(pageNum);
-          const viewport = page.getViewport({ scale: zoom });
+
+          const viewport = page.getViewport({
+            scale: zoom
+          });
+
           const context = canvas.getContext("2d");
 
           canvas.width = viewport.width;
           canvas.height = viewport.height;
+
           context.clearRect(0, 0, canvas.width, canvas.height);
 
           await page.render({
             canvasContext: context,
-            viewport,
+            viewport: viewport
           }).promise;
+
         } catch (err) {
+
           console.error("Render error page:", pageNum, err);
+
         }
       }
+
     };
 
     renderPages();
+
   }, [pdfDoc, numPages, zoom, canvasesReadyTick]);
 
+  /* ---------------- CURRENT PAGE (SCROLL) ---------------- */
+
   useEffect(() => {
-    const container = scrollRootRef.current;
+    const container = viewerRef.current;
     if (!container || !numPages) return;
 
     let raf = 0;
@@ -142,39 +157,60 @@ const PDFViewer = forwardRef(function PDFViewer({ fileUrl }, ref) {
     };
   }, [numPages, zoom]);
 
-  const ZOOM_STEP = 0.2;
+  /* ---------------- IMPERATIVE API ---------------- */
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToPage(pageNumber) {
+        const container = viewerRef.current;
+        if (!container) return;
+        const el = container.querySelector(`[data-page="${pageNumber}"]`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    }),
+    []
+  );
+
+  /* ---------------- ZOOM ---------------- */
+  const ZOOM_STEP = 0.2; 
   const MAX_ZOOM = 3;
   const MIN_ZOOM = 0.5;
+  
+  const zoomIn = () => setZoom(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
+  const zoomOut = () => setZoom(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
 
-  const zoomIn = () => setZoom((prev) => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
-  const zoomOut = () => setZoom((prev) => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="pdfContainer">
+
       {loading && <div className="fileInfo">Loading PDF...</div>}
       {error && <div className="errorText">{error}</div>}
 
       <div className="controls">
+
         <span className="fileInfo">
           Page {currentPage} / {numPages || "?"}
         </span>
 
         <div className="controlsGroup">
-          <button type="button" onClick={zoomOut}>
-            -
-          </button>
+          <button onClick={zoomOut}>-</button>
           <span className="zoompercent">{Math.round(zoom * 100)}%</span>
-          <button type="button" onClick={zoomIn}>
-            +
-          </button>
+          <button onClick={zoomIn}>+</button>
         </div>
+
       </div>
 
-      <div className="pdfViewer pdfScroll" ref={scrollRootRef}>
+      <div className="pdfViewer pdfScroll" ref={viewerRef}>
+
         {Array.from({ length: numPages }, (_, index) => {
-          const pageNum = index + 1;
+
+          const page = index + 1;
+
           return (
-            <div className="pdfPage" data-page={pageNum} key={pageNum}>
+            <div className="pdfPage" data-page={page} key={page}>
+
               <canvas
                 ref={(el) => {
                   canvasRefs.current[index] = el;
@@ -185,14 +221,16 @@ const PDFViewer = forwardRef(function PDFViewer({ fileUrl }, ref) {
                 }}
                 className="pdfCanvas"
               />
+
             </div>
           );
+
         })}
+
       </div>
+
     </div>
   );
 });
-
-PDFViewer.displayName = "PDFViewer";
 
 export default PDFViewer;

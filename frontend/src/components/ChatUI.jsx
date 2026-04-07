@@ -8,17 +8,30 @@ function newId() {
 }
 
 /**
- * Stream format: first line is JSON {"sources":[{"page":number,"excerpt":"..."},...]}, then plain answer text.
- * Legacy: no newline before end → treat whole buffer as answer (no sources).
+ * Stream format:
+ * - First line: JSON {"source":"Page 1-5"} (single formatted string)
+ * - Then: plain answer text
+ *
+ * Legacy fallback: if we can't parse that first JSON line, treat the whole body as answer.
  */
+function formatPageRange(pages) {
+  const nums = pages
+    .filter((p) => typeof p === "number" && Number.isFinite(p))
+    .sort((a, b) => a - b);
+  const uniq = [...new Set(nums)];
+  if (uniq.length === 0) return "";
+  if (uniq.length === 1) return `Page ${uniq[0]}`;
+  return `Page ${uniq[0]}-${uniq[uniq.length - 1]}`;
+}
+
 async function readAskStream(reader, decoder, onUpdate) {
   let carry = "";
-  let sources = [];
   let metaParsed = false;
   let answerText = "";
+  let sourceText = "";
 
   const flush = (text, src) => {
-    onUpdate({ text, sources: src });
+    onUpdate({ text, source: src });
   };
 
   while (true) {
@@ -30,8 +43,8 @@ async function readAskStream(reader, decoder, onUpdate) {
       if (nl === -1) {
         if (done) {
           answerText = carry;
-          sources = [];
-          flush(answerText, sources);
+          sourceText = "";
+          flush(answerText, sourceText);
         }
         if (done) break;
         continue;
@@ -40,23 +53,33 @@ async function readAskStream(reader, decoder, onUpdate) {
       const line = carry.slice(0, nl);
       carry = carry.slice(nl + 1);
       metaParsed = true;
+
       try {
         const meta = JSON.parse(line);
-        sources = Array.isArray(meta.sources) ? meta.sources : [];
+        if (typeof meta?.source === "string") {
+          sourceText = meta.source;
+        } else if (Array.isArray(meta?.sources)) {
+          // Legacy support: derive from page numbers if we get the old format
+          const pages = meta.sources.map((s) => (typeof s === "number" ? s : s?.page));
+          sourceText = formatPageRange(pages);
+        } else {
+          sourceText = "";
+        }
       } catch {
-        sources = [];
+        sourceText = "";
         carry = `${line}\n${carry}`;
       }
+
       answerText = carry;
       carry = "";
-      flush(answerText, sources);
+      flush(answerText, sourceText);
       if (done) break;
       continue;
     }
 
     answerText += carry;
     carry = "";
-    flush(answerText, sources);
+    flush(answerText, sourceText);
     if (done) break;
   }
 
@@ -64,7 +87,7 @@ async function readAskStream(reader, decoder, onUpdate) {
   if (tail || carry) {
     answerText += tail + carry;
     carry = "";
-    flush(answerText, sources);
+    flush(answerText, sourceText);
   }
 }
 
@@ -114,7 +137,7 @@ export default function ChatUI({ scrollToPage }) {
           // ignore
         }
         const reply = details || "Request failed. Please try again.";
-        setMessages((prev) => [...prev, { id: newId(), role: "ai", text: reply, sources: [] }]);
+        setMessages((prev) => [...prev, { id: newId(), role: "ai", text: reply, source: "" }]);
         return;
       }
 
@@ -122,12 +145,12 @@ export default function ChatUI({ scrollToPage }) {
       if (!reader) {
         setMessages((prev) => [
           ...prev,
-          {
-            id: newId(),
-            role: "ai",
-            text: "Streaming is not supported in this browser.",
-            sources: [],
-          },
+            {
+              id: newId(),
+              role: "ai",
+              text: "Streaming is not supported in this browser.",
+              source: "",
+            },
         ]);
         return;
       }
@@ -135,13 +158,13 @@ export default function ChatUI({ scrollToPage }) {
       const aiId = newId();
       setMessages((prev) => [
         ...prev,
-        { id: aiId, role: "ai", text: "", sources: [] },
+        { id: aiId, role: "ai", text: "", source: "" },
       ]);
 
       const decoder = new TextDecoder();
-      await readAskStream(reader, decoder, ({ text: t, sources: s }) => {
+      await readAskStream(reader, decoder, ({ text: t, source: s }) => {
         setMessages((prev) =>
-          prev.map((m) => (m.id === aiId ? { ...m, text: t, sources: s } : m))
+          prev.map((m) => (m.id === aiId ? { ...m, text: t, source: s } : m))
         );
       });
 
@@ -161,7 +184,7 @@ export default function ChatUI({ scrollToPage }) {
           id: newId(),
           role: "ai",
           text: err.message || "Something went wrong while getting an answer.",
-          sources: [],
+          source: "",
         },
       ]);
     } finally {
@@ -200,32 +223,9 @@ export default function ChatUI({ scrollToPage }) {
                       )}
                     </div>
                   </div>
-                  {Array.isArray(m.sources) && m.sources.length > 0 && (() => {
-
-                    // extract unique pages
-                    const pages = [...new Set(m.sources.map(s => s.page))].sort((a, b) => a - b);
-
-                    let sourceText = "";
-
-                    if (pages.length === 1) {
-                      sourceText = `Page ${pages[0]}`;
-                    } else {
-                      sourceText = `Page ${pages[0]}-${pages[pages.length - 1]}`;
-                    }
-
-                    return (
-                      <div className="chat-ui__sources-block">
-                        <div className="chat-ui__block-label">Source:</div>
-
-                        <div
-                          className="chat-ui__source-range"
-                          onClick={() => scrollToPage && scrollToPage(pages[0])}
-                        >
-                          {sourceText}
-                        </div>
-                      </div>
-                    );
-                  })()}
+                  <div className="chat-ui__sourceBox" aria-label="Source">
+                    <b>Source:</b> {m.source || "—"}
+                  </div>
                 </>
               ) : (
                 m.text

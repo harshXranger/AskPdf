@@ -9,6 +9,8 @@ import numpy as np
 import faiss
 import requests
 from sentence_transformers import SentenceTransformer    
+import unicodedata
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -25,11 +27,43 @@ OLLAMA_API_URL = os.environ.get("OLLAMA_API_URL", "http://127.0.0.1:11434").rstr
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2:1b")
 
 
+def clean_text(text: str) -> str:
+    """
+    Clean and normalize PDF-extracted text to reduce common encoding artifacts.
+    """
+    if not text:
+        return ""
+
+    # Fix common glyph substitutions (PDF encoding/font issues)
+    replacements = {
+        "Ɵ": "ti",
+        "ﬁ": "fi",  
+        "fl": "fl",
+        "ﬂ": "fl",
+        "ﬀ": "ff",
+        "ﬃ": "ffi",
+        "ﬄ": "ffl",
+    }
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+
+    # Normalize to reduce weird combining sequences
+    text = unicodedata.normalize("NFKD", text)
+
+    # Remove soft line breaks and collapse whitespace
+    text = text.replace("\r", "\n")
+    text = re.sub(r"[\u200b\u00ad]", "", text)  # zero-width space, soft hyphen
+    text = text.replace("\n", " ")
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
+
+
 def extract_text_from_pdf(pdf_path: str) -> tuple[str, int]:
     doc = fitz.open(pdf_path)
     try:
         pages = doc.page_count
-        full_text = "".join(page.get_text() for page in doc)
+        full_text = " ".join(clean_text(page.get_text()) for page in doc)
         return full_text, pages
     finally:
         doc.close()
@@ -43,7 +77,7 @@ def extract_pages_text(pdf_path: str) -> tuple[list[tuple[int, str]], int]:
         out: list[tuple[int, str]] = []
         for i in range(n):
             t = doc.load_page(i).get_text() or ""
-            out.append((i + 1, t))
+            out.append((i + 1, clean_text(t)))
         return out, n
     finally:
         doc.close()
@@ -210,6 +244,15 @@ def source_entries_from_matches(matches: list[dict], *, excerpt_max: int = 220) 
         out.append({"page": page, "excerpt": excerpt})
     return out
 
+
+def format_page_range(pages: list[int]) -> str:
+    if not pages:
+        return ""
+    pages = sorted(set(pages))
+    if len(pages) == 1:
+        return f"Page {pages[0]}"
+    return f"Page {pages[0]}-{pages[-1]}"
+
 def stream_ollama_answer(question: str, context: str):
     """Yield plain-text fragments from Ollama /api/generate (stream: true)."""
     url = f"{OLLAMA_API_URL}/api/generate"
@@ -362,7 +405,7 @@ def ask():
         if not top_matches:
 
             def no_context_stream():
-                yield json.dumps({"sources": []}, ensure_ascii=False) + "\n"
+                yield json.dumps({"source": ""}, ensure_ascii=False) + "\n"
                 yield "I could not find relevant information in the document."
 
             return Response(
@@ -372,8 +415,14 @@ def ask():
             )
 
         context = "\n\n---\n\n".join(m["chunk"] for m in top_matches)
+        pages = [
+            m.get("page")
+            for m in top_matches
+            if isinstance(m.get("page"), int)
+        ]
+        source_text = format_page_range(pages)
         meta_line = json.dumps(
-            {"sources": source_entries_from_matches(top_matches)},
+            {"source": source_text},
             ensure_ascii=False,
         )
 
