@@ -177,19 +177,6 @@ Page 1-5
 
 ---
 
-## 🤝 Contributing
-
-Pull requests are welcome!
-Feel free to open issues for suggestions or improvements.
-
----
-
-## 📄 License
-
-This project is open-source and available under the MIT License.
-
----
-
 ## 👨‍💻 Author
 
 Harsh Singh
