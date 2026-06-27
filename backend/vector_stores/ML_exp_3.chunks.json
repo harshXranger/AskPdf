@@ -1,0 +1,11 @@
+{
+  "source_pdf": "ML_exp_3.pdf",
+  "pages": 3,
+  "chunk_size": 700,
+  "chunks": [
+    "Name- Harshal Chopda Roll No.- TY A 46 Batch - A3 3A : Least Squares Regresion(Advertising Dataset) Expt 3 :Linear Regression Modelling keyboard_arrow_down import numpy as np import pandas as pd import matplotlib.pyplot as plt from sklearn.linear_model import LinearRegression from sklearn.metrics import mean_squared_error, r2_score from sklearn.model_selection import train_test_split Choose Files Advertising.csv Advertising.csv(text/csv) - 4555 bytes, last modified: 3/27/2026 - 100% done Saving Advertising.csv to Advertising.csv from google.colab import files uploaded = files.upload() df = pd.read_csv('Advertising.csv') print(df.head()) print(f\"Dataset shape: {df.shape}\") Unnamed: 0 TV",
+    "radio newspaper sales 0 1 230.1 37.8 69.2 22.1 1 2 44.5 39.3 45.1 10.4 2 3 17.2 45.9 69.3 9.3 3 4 151.5 41.3 58.5 18.5 4 5 180.8 10.8 58.4 12.9 Dataset shape: (200, 5) feature = 'TV' target = 'sales' X = df[[feature]].values y = df[target].values X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=42 ) def manual_linear_regression(X, y): X_b = np.c_[np.ones((X.shape[0], 1)), X] theta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y return theta theta_manual = manual_linear_regression(X_train, y_train) print(f\"Manual solution: Intercept={theta_manual[0]:.4f}, Slope={theta_manual[1]:.4f}\") Manual solution: Intercept=7.1196, Slope=0.0465 model = LinearRegression()",
+    "model.fit(X_train, y_train) print(f\"Sklearn: Intercept={model.intercept_:.4f}, Slope={model.coef_[0]:.4f}\") Sklearn: Intercept=7.1196, Slope=0.0465 y_pred = model.predict(X_test) mse = mean_squared_error(y_test, y_pred) r2 = r2_score(y_test, y_pred) print(f\"Mean Squared Error: {mse:.4f}\") print(f\"R-squared: {r2:.4f}\") Mean Squared Error: 10.2047 R-squared: 0.6767 plt.figure(figsize=(10, 6)) plt.scatter(X_test, y_test, color='blue', label='Actual data', alpha=0.5) X_line = np.array([[X.min()], [X.max()]]) y_line = model.predict(X_line) plt.plot(X_line, y_line, color='red', linewidth=2, label='Regression line') plt.xlabel(f\"{feature} Advertising Budget ($)\") plt.ylabel(\"Sales ($)\")",
+    "plt.title(f\"Linear Regression: {feature} vs Sales\") plt.legend() plt.grid(True, alpha=0.3) plt.show()"
+  ]
+}
