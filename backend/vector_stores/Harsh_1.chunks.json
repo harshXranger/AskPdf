@@ -1,0 +1,17 @@
+{
+  "source_pdf": "Harsh_1.pdf",
+  "pages": 1,
+  "chunk_size": 700,
+  "chunks": [
+    "Harsh Singh GH Raisoni College of Engineering and Management, Pune Education •Bachelor of Technology in Information Technology GH Raisoni College of Engineering and Management, Pune Personal Projects +91 9682684146 harsh.singh170405@gmail.com www.linkedin.com/in/harsh-singh-070590298 2023-27 CGPA: 8.24 AskPDF – AI Powered PDF Chat Application • Built an AI-based PDF chatbot using RAG (FAISS + Sentence Transformers + LLM via. • Developed React-based ChatGPT-style UI with streaming responses and source navigation • Implemented semantic search and PDF text processing for accurate question answering • Built semantic search using Sentence Transformers and FAISS for accurate context retrieval.",
+    "wering • Built semantic search using Sentence Transformers and FAISS for accurate context retrieval. • Integrated LLM via :contentReference[oaicite:0]{index=0} to generate contextual answers with real-time streaming responses. • Implemented source tracking with page navigation (click jump to PDF page) • Improved text quality by handling encoding issues and normalization. • Developed full-stack architecture using React (frontend) and Flask (backend). Heart Disease Prediction Developed a machine learning model to predict the likelihood of heart disease based on patient health parameters.",
+    "achine learning model to predict the likelihood of heart disease based on patient health parameters. • Performed data preprocessing including handling missing values, encoding categorical features, and feature scaling. • Conducted exploratory data analysis (EDA) to identify patterns and correlations between medical attributes. • Implemented classification algorithms such as Logistic Regression, Decision Tree, and Random Forest. • Evaluated model performance using accuracy, precision, recall, and F1-score. • Optimized model performance through feature selection and hyperparameter tuning.",
+    "ll, and F1-score. • Optimized model performance through feature selection and hyperparameter tuning. Technical Skills and Interests Languages: C/C++, Python, JavaScript, HTML, CSS Libraries/Frameworks: C++ STL, Python Libraries, React.js Web Development Tools: Node.js, VS Code, Git, GitHub Databases: MySQL, MongoDB Relevant Coursework: Data Structures & Algorithms, Operating Systems, Object-Oriented Programming, Database Management Systems Areas of Interest: Web Design & Development, Machine Learning Soft Skills: Problem Solving, Self-Learning, Presentation, Adaptability INTRESTS Gaming, Trekking"
+  ],
+  "chunk_pages": [
+    1,
+    1,
+    1,
+    1
+  ]
+}

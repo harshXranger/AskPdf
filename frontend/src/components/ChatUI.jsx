@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./ChatUI.css";
+import ReactMarkdown from "react-markdown";
 
 const API_URL = "http://127.0.0.1:5000/ask";
 
 function newId() {
-  return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return (
+    crypto.randomUUID?.() ??
+    `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
 }
 
 function formatPageRange(pages) {
@@ -50,7 +54,9 @@ async function readAskStream(reader, decoder, onUpdate) {
         if (typeof meta?.source === "string") {
           sourceText = meta.source;
         } else if (Array.isArray(meta?.sources)) {
-          const pages = meta.sources.map((s) => (typeof s === "number" ? s : s?.page));
+          const pages = meta.sources.map((s) =>
+            typeof s === "number" ? s : s?.page,
+          );
           sourceText = formatPageRange(pages);
         } else {
           sourceText = "";
@@ -104,7 +110,9 @@ export default function ChatUI() {
   }, [isBusy]);
 
   const showConnecting =
-    isBusy && messages.length > 0 && messages[messages.length - 1]?.role === "user";
+    isBusy &&
+    messages.length > 0 &&
+    messages[messages.length - 1]?.role === "user";
 
   const send = async (e) => {
     e.preventDefault();
@@ -131,7 +139,10 @@ export default function ChatUI() {
           // ignore
         }
         const reply = details || "Request failed. Please try again.";
-        setMessages((prev) => [...prev, { id: newId(), role: "ai", text: reply, source: "" }]);
+        setMessages((prev) => [
+          ...prev,
+          { id: newId(), role: "ai", text: reply, source: "" },
+        ]);
         return;
       }
 
@@ -139,18 +150,26 @@ export default function ChatUI() {
       if (!reader) {
         setMessages((prev) => [
           ...prev,
-          { id: newId(), role: "ai", text: "Streaming not supported.", source: "" },
+          {
+            id: newId(),
+            role: "ai",
+            text: "Streaming not supported.",
+            source: "",
+          },
         ]);
         return;
       }
 
       const aiId = newId();
-      setMessages((prev) => [...prev, { id: aiId, role: "ai", text: "", source: "" }]);
+      setMessages((prev) => [
+        ...prev,
+        { id: aiId, role: "ai", text: "", source: "" },
+      ]);
 
       const decoder = new TextDecoder();
       await readAskStream(reader, decoder, ({ text: t, source: s }) => {
         setMessages((prev) =>
-          prev.map((m) => (m.id === aiId ? { ...m, text: t, source: s } : m))
+          prev.map((m) => (m.id === aiId ? { ...m, text: t, source: s } : m)),
         );
       });
 
@@ -158,7 +177,7 @@ export default function ChatUI() {
         const m = prev.find((x) => x.id === aiId);
         if (m && !String(m.text || "").trim()) {
           return prev.map((x) =>
-            x.id === aiId ? { ...x, text: "(No response received.)" } : x
+            x.id === aiId ? { ...x, text: "(No response received.)" } : x,
           );
         }
         return prev;
@@ -224,7 +243,13 @@ export default function ChatUI() {
         {messages.map((m) => (
           <div key={m.id} className={`msg msg--${m.role}`}>
             <div className={`msg__bubble msg__bubble--${m.role}`}>
-              <div className="msg__text">{m.text || <span className="msg__cursor" />}</div>
+              <div className="msg__text">
+                {m.text ? (
+                  <ReactMarkdown>{m.text}</ReactMarkdown>
+                ) : (
+                  <span className="msg__cursor" />
+                )}
+              </div>
             </div>
           </div>
         ))}
