@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+node_modules/
+__pycache__/
+*.pem
+*.key
+service-account*.json
